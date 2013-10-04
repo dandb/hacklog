@@ -1,0 +1,2 @@
+#####  hacklogd is a deamon that listen on syslog events 
+propery: value
