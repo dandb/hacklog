@@ -6,6 +6,7 @@ import sys
 import csv
 import logging
 import random
+from time import sleep
 from logging.handlers import SysLogHandler
 import syslog
 import os
@@ -17,7 +18,7 @@ reader = csv.reader(fileName)
 #these statements set up the syslog handler
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-handler = logging.handlers.SysLogHandler(address=('192.168.56.110', 514))
+handler = logging.handlers.SysLogHandler(address=(sys.argv[2], 514))
 logger.addHandler(handler)
 
 
@@ -25,11 +26,12 @@ logger.addHandler(handler)
 def logMessages(logData):
     sysLogMessage = ''
     if(logData['Login_Status'] == 'True'):
-        sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(3400, 8888, 100))
+        sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123))
     else:
         sysLogMessage = "ssshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'])
 
     #log the message in syslogs
+    #print sysLogMessage
     logger.info(sysLogMessage)
 
 
@@ -43,10 +45,11 @@ for row in reader:
 
     else:
         colNum = 0
-
         for col in row:
             eachRowData[fileData[colNum]] = col
             colNum += 1
+        if(rowNum % 5 == 0):
+            sleep (50.0 / 1000.0)
         logMessages(eachRowData)
     rowNum += 1
 
