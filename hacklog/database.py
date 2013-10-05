@@ -1,5 +1,5 @@
 import sqlite3
-from hacklog.entities import DayProfile,HourProfile,ServerProfile,IpAddressProfile
+from hacklog.entities import Profile
 
 
 def __init__():
