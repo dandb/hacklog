@@ -1,29 +1,51 @@
 import sqlite3
-from hacklog.entities import Profile
+from sqlalchemy import *
 
+db = create_engine('sqlite:///hacklog.db')
 
-def __init__():
-	self._conn=sqlite3.connect('hacklog.db')
+db.echo = True
 
-def initialize_profile():
-	sqlite3.register_adapter(Profile, adapt_profile)
-	sqlite3.register_converter(Profile, convert_profile)
+metadata = BoundMetaData(db)
 
-def initialize_day_table():
-	self._conn.execute("create table day(datetime text, user text, profile Profile)
+days = Table('days', metadata, 
+	Column('date', DateTime),
+	Column('username', String),
+	Column('profile', PickleType),)
 
-def initialize_hour_table():
-	self._conn.execute("create table hour(datetime text, user text, profile Profile)
+hours = Table('hours', metadata,
+	Column('date', DateTime),
+	Column('username', String),
+	Column('profile', PickleType),)
 
-def initialize_server_table():
-	self._conn.execute("create table server(datetime text, user text, profile Profile)
+servers = Table('servers', metadata,
+	Column('date', DateTime),
+	Column('username', String),
+	Column('profile', PickleType),)
 
-def initialize_ip_address_table():
-	self._conn.execute("create table ip_address(datetime text, user text, profile Profile)
-	
-def initialize_current_status_table():
-	self._conn.execute("create table current_status(user_text PRIMARY KEY, datetime text, current_score int)
+ipAddresses = Table('ip_address', metadata,
+		Column('date', DateTime),
+		Column('username', String),
+		Column('profile', PickleType),)
 
-def initialize_event_log_table():
-	self._conn.execute("create table event_log(datetime text, user text, ip_address text, success int, server text)
+currentStatus = Table('current_status', metadata,
+		Column('username', String),
+		Column('date', DateTime),
+		Column('score', Integer),)
+
+eventLog = Table('event_log', metadata, 
+		Column('date', DateTime),
+		Column('username', String),
+		Column('ipAddress', String),
+		Column('success',),
+		Column('server', String),)
+
+metadata.create_all()
+
+dayMapper = mapper(Days, days)
+hourMapper = mapper(Hours, hours)
+serverMapper = mapper(Servers, servers)
+ipAddressesMapper = mapper(IpAddresses, ipAddresses)
+currentStatusMapper = mapper(CurrentStatus, currentStatus)
+eventLogMapper = mapper(EventLog, eventLog)
+
 
