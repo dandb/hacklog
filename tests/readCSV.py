@@ -45,20 +45,25 @@ def readLineGenerateLogs(reader):
 
 #main function
 def main():
+
+    #initialize variables based on commandlines or defaults
+    fileName = sys.argv[1] if sys.argv[1] else "data"
+    ipAddress = sys.argv[2] if sys.argv[2] else "192.168.56.110"
+
     #these statements set up the syslog handler
     global logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    handler = logging.handlers.SysLogHandler(address=(sys.argv[2], 514))
+    handler = logging.handlers.SysLogHandler(address=(ipAddress, 514))
     logger.addHandler(handler)
 
     #open file and generate a reader for csv files and close file
-    fileName  = open(sys.argv[1], "rb")
-    reader = csv.reader(fileName)
+    fileObject  = open(fileName, "rb")
+    reader = csv.reader(fileObject)
 
     #makes call to function that generates logs
     readLineGenerateLogs(reader)
-    fileName.close()
+    fileObject.close()
 
 if __name__ == "__main__":
   main()
