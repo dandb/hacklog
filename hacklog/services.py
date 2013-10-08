@@ -5,6 +5,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+Hours = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
 
 class EmailService:
 
@@ -33,12 +34,18 @@ class EmailService:
 class UpdateService:
 
 	def __init__():
-		
+		self._hourRanges = [Hours.EARLY, Hours.DAWN, Hours.MORNING, Hours.AFTEROON, Hours.EVE, Hours.NIGHT]
+		self._rangeName = ['early', 'dawn', 'morning', 'afternoon', 'eve', 'night']
 
 	def updateAndReturnHourFreqForUser(eventLog):
 		hourProfile = HoursDao.getProfileByUser(eventLog.username)
 		hour = eventLog.date.hour 
-		hourFreq = updateAndReturnFreqForProfile(hourProfile, hour)
+		rangeName = self._rangeName[0]
+		for hourRange in self._hourRanges:
+			if hour is in hourRange
+				rangeName = self._rangeName[_self.hourRanges.index(hourRange)
+		
+		hourFreq = updateAndReturnFreqForProfile(hourProfile, rangeName)
 		return hourFreq
 
 	def updateAndReturnDayFreqForUser(eventLog):

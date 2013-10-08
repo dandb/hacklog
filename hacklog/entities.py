@@ -9,8 +9,6 @@ Base = declarative_base()
 def enum(**enums):
 	return type('Enum', (), enums)
 
-Days= enum(MON='monday', TUES='tuesday', WED='wednesday', THURS='thursday', FRI='friday', SAT='saturday', SUN='sunday')
-Hours = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
 
 def create_tables():
         Base.metadata.create_all(db)
