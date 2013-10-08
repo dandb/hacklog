@@ -1,25 +1,12 @@
-#TRUE :- <DATE TIME> sshd[<RANDOM>]: Accepted publickey for <USERNAME> from <IPADDRESS> port <RANDOM> ssh2
-#FAILURE :- <DATE TIME> sshd[<RANDOM>]: pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=<IPADDRESS>  user=<USERNAME>
-
 #import the modules
+from time import sleep
+from logging.handlers import SysLogHandler
+import syslog
 import sys
 import csv
 import logging
 import random
-from time import sleep
-from logging.handlers import SysLogHandler
-import syslog
 import os
-
-#open file and generate a reader for csv files and close file
-fileName  = open(sys.argv[1], "rb")
-reader = csv.reader(fileName)
-
-#these statements set up the syslog handler
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-handler = logging.handlers.SysLogHandler(address=(sys.argv[2], 514))
-logger.addHandler(handler)
 
 
 #function that ships messages over the network
@@ -34,27 +21,46 @@ def logMessages(logData):
     #print sysLogMessage
     logger.info(sysLogMessage)
 
+#this function reads each log from the csv
+#forms a dictionary with appropriate values
+#calls a function logMessages that forms the log messages based on success or failure
+def readLineGenerateLogs(reader):
+    #the outer for loop generates the headers and inner for loop associates the values to headers
+    rowNum = 0
+    for row in reader:
+        eachRowData = {}
+        # Save header row.
+        if rowNum == 0:
+            fileData = row
 
-#the outer for loop generates the headers and inner for loop associates the values to headers
-rowNum = 0
-for row in reader:
-    eachRowData = {}
-    # Save header row.
-    if rowNum == 0:
-        fileData = row
+        else:
+            colNum = 0
+            for col in row:
+                eachRowData[fileData[colNum]] = col
+                colNum += 1
+            if(rowNum % 5 == 0):
+                sleep (50.0 / 1000.0)
+            logMessages(eachRowData)
+        rowNum += 1
 
-    else:
-        colNum = 0
-        for col in row:
-            eachRowData[fileData[colNum]] = col
-            colNum += 1
-        if(rowNum % 5 == 0):
-            sleep (50.0 / 1000.0)
-        logMessages(eachRowData)
-    rowNum += 1
+#main function
+def main():
+    #these statements set up the syslog handler
+    global logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    handler = logging.handlers.SysLogHandler(address=(sys.argv[2], 514))
+    logger.addHandler(handler)
 
-fileName.close()
+    #open file and generate a reader for csv files and close file
+    fileName  = open(sys.argv[1], "rb")
+    reader = csv.reader(fileName)
 
+    #makes call to function that generates logs
+    readLineGenerateLogs(reader)
+    fileName.close()
 
+if __name__ == "__main__":
+  main()
 
 
