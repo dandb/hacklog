@@ -3,6 +3,7 @@ import ConfigParser
 import argparse
 import entities
 import sqlite3
+import algorithm
 
 def main():
 	usage = "usage: %prog -c config_file"
@@ -24,6 +25,7 @@ def main():
 		sys.exit(1)
 	print test	
 	entities.create_tables()
+	algorithm.testProcess()
 
 if __name__ == "__main__":
 	main()

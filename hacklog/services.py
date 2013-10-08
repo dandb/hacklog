@@ -1,23 +1,24 @@
-import accessdata 
+from accessdata import *
 from datetime import date
 import smtplib
+from entities import *
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-Hours = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
+HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
 
 class EmailService:
 
-        def sendEmailAlert(user, eventLog)
-                from = "sshAlerts@dandb.com"
-                to = "nrhine@dandb.com"
+        def sendEmailAlert(user, eventLog):
+                fromAddress = 'sshAlerts@dandb.com'
+                toAddress = 'nrhine@dandb.com'
 
                 # Create message container - the correct MIME type is multipart/alternative.
                 msg = MIMEMultipart('alternative')
                 msg['Subject'] = "EMAIL ALERT - CONCERNING SSH ACTIVITY ON: " + eventLog.server
-                msg['From'] = from
-                msg['To'] = to
+                msg['From'] = fromAddress
+                msg['To'] = toAddress
 
                 text = "Hi!\nHow are you?\nThere was some suspicious activity on the following server: " + eventLog.server + " for user: " + user.username + "\n Their current score is " + user.score
 
@@ -27,61 +28,78 @@ class EmailService:
                 msg.attach(part)
 
                 s = smtplib.SMTP('localhost')
-                s.sendmail(from, to, msg.as_string())
+                s.sendmail(fromAddress, toAddress, msg.as_string())
                 s.quit()
 
 
 class UpdateService:
 
-	def __init__():
-		self._hourRanges = [Hours.EARLY, Hours.DAWN, Hours.MORNING, Hours.AFTEROON, Hours.EVE, Hours.NIGHT]
+	def __init__(self):
+		self._hourRanges = [HourRangeEnum.EARLY, HourRangeEnum.DAWN, HourRangeEnum.MORNING, HourRangeEnum.AFTERNOON, HourRangeEnum.EVE, HourRangeEnum.NIGHT]
 		self._rangeName = ['early', 'dawn', 'morning', 'afternoon', 'eve', 'night']
+		self._genericDao = GenericDao()
+		self._serverDao = ServerDao()
+		self._hoursDao = HoursDao()
+		self._daysDao = DaysDao()
+		self._ipAddressDao = IpAddressDao()
+		self._userDao = UserDao()
 
-	def updateAndReturnHourFreqForUser(eventLog):
-		hourProfile = HoursDao.getProfileByUser(eventLog.username)
-		hour = eventLog.date.hour 
-		rangeName = self._rangeName[0]
-		for hourRange in self._hourRanges:
-			if hour is in hourRange
-				rangeName = self._rangeName[_self.hourRanges.index(hourRange)
-		
-		hourFreq = updateAndReturnFreqForProfile(hourProfile, rangeName)
-		return hourFreq
-
-	def updateAndReturnDayFreqForUser(eventLog):
-		dayProfile = DaysDao.getProfileByUser(eventLog.username)
-		day = eventLog.date.strftime('%a')
-		dayFreq = updateAndReturnFreqForProfile(dayProfile, day)
-		return dayFreq
-
-	def updateAndReturnServerFreqForUser(eventLog):
-		serverProfile = ServerDao.getProfileByUser(eventLog.username)
-		serverFreq = updateAndReturnFreqForProfile(serverProfile, eventLog.server)
-		return serverFreq
-
-	def updateAndReturnIpFreqForUser(eventLog):
-		ipProfile = IpAddressDao.getProfileByUser(eventLog.username)
-		ipFreq = updateAndReturnFreqForProfile(ipProfile, eventLog.ipAddress)
-		return ipFreq
-
-	def updateAndReturnFreqForProfile(profile, value):
+	def updateAndReturnFreqForProfile(self, profile, value):
 		profileDict = profile.profile
 		profileDict[value] = profileDict.get(value,0) + 1
 		profile.totalCount+=1
 		freq = profileDict[value]/profile.totalCount
-		GenericDAO.saveEntity(profile)
+		profile.profile = profileDict
+		self._genericDao.saveEntity(profile)
 		return freq
 
-	def auditEventLog(eventLog):
-		GenericDAO.saveEntity(eventLog)
+	def updateAndReturnHourFreqForUser(self, eventLog):
+		hourProfile = self._hoursDao.getProfileByUser(eventLog.username)
+		hour = eventLog.date.hour 
+		rangeName = self._rangeName[0]
+		for hourRange in self._hourRanges:
+			if hour in hourRange:
+				rangeName = self._rangeName[self._hourRanges.index(hourRange)]
+		if hourProfile == None:
+			hourProfile = Hours(eventLog.date, eventLog.username, {}, 0)
+		hourFreq = self.updateAndReturnFreqForProfile(hourProfile, rangeName)
+		return hourFreq
 
-	def updateUserScore(score, eventLog):
-		user = UserDao.getUserByName(eventLog.username)
-		user.score = score
-		GenericDAO.saveEntity(user)
+	def updateAndReturnDayFreqForUser(self, eventLog):
+		dayProfile = self._daysDao.getProfileByUser(eventLog.username)
+		day = eventLog.date.strftime('%a')
+		if dayProfile == None:
+			dayProfile = Days(eventLog.date, eventLog.username, {}, 0)
+		dayFreq = self.updateAndReturnFreqForProfile(dayProfile, day)
+		return dayFreq
+
+	def updateAndReturnServerFreqForUser(self, eventLog):
+		serverProfile = self._serverDao.getProfileByUser(eventLog.username)
+		if serverProfile == None:
+			serverProfile = Servers(eventLog.date, eventLog.username, {}, 0)
+		serverFreq = self.updateAndReturnFreqForProfile(serverProfile, eventLog.server)
+		return serverFreq
+
+	def updateAndReturnIpFreqForUser(self, eventLog):
+		ipProfile = self._ipAddressDao.getProfileByUser(eventLog.username)
+		if ipProfile == None:
+			ipProfile = IpAddress(eventLog.date, eventLog.username, {}, 0)
+		ipFreq = self.updateAndReturnFreqForProfile(ipProfile, eventLog.ipAddress)
+		return ipFreq
+
+	def auditEventLog(self, eventLog):
+		self._genericDao.saveEntity(eventLog)
+
+	def updateUserScore(self, score, eventLog):
+		user = self._userDao.getUserByName(eventLog.username)
+		if user == None:
+			user = User(eventLog.username, eventLog.date, score)
+		else:
+			user.score = score
+		self._genericDao.saveEntity(user)
 		return user
 
-	def updateUserScareCount(user):
+	def updateUserScareCount(self, user):
 		user.scareCount += 1
 		user.lastScareDate = date.today()
-		GenericDAO.saveEntity(user)
+		self._genericDao.saveEntity(user)

@@ -101,7 +101,23 @@ class IpAddress(Base):
 		self.profile = profile
 		self.totalCount = totalCount
 
-<<<<<<< HEAD
+	@staticmethod
+	def checkIpForVpn(ip):
+		quadrantList = ip.split('.')
+		if quadrantList[0] == '10' and quadrantList[1] == '42':
+			return True
+		return False
+
+	@staticmethod
+	def checkIpForInternal(ip):
+		quadrantList = ip.split('.')
+		if quadrantList[0] == '10':
+			if quadrantList[1] == '24' or quadrantList[1] == '26':
+				return True
+		elif quadrantList[0] == '172' and quadrantList[1] == '16':
+			return True
+		return False
+
 class SyslogMsg():
 
    def __init__(self, data='', host='', port=0):
@@ -109,26 +125,4 @@ class SyslogMsg():
      self.host = host
      self.port = port
      self.date = datetime.now()
-
-def create_tables():
-        Base.metadata.create_all(db)
-
-def enum(**enums):
-	return type('Enum', (), enums)
-=======
-	def checkIpForVpn(ip):
-		quadrantList = ip.split('.')
-		if quadrantList[0] == '10' && quadrantList[1] == '42'
-			return true
-		return false
-
-	def checkIpForInternal(ip):
-		quadrantList = ip.split('.')
-		if quadrantList[0] == '10'
-			if quadrantList[1] == '24' || quadrantList[1] == '26'
-				return true
-		elif quadrantList[0] == '172' && quadrantList[1] == '16'
-			return true
-		return false
->>>>>>> HACKLOG-3 Adding algorithm and services/dao layer to communicate with ORM
 
