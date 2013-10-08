@@ -8,10 +8,10 @@ def processEventLog(eventLog):
 	auditEventLog(eventLog)
 	user = calculateNewScore(eventLog)
 	if user.score > Threshold.CRITICAL
-		processAlert(user)
+		processAlert(user, eventLog)
 	elif user.score > Threshold.SCARY
 		if user.scareCount >= Threshold.SCARECOUNT
-			processAlert(user)
+			processAlert(user, eventLog)
 		UpdateService.updateScareCount(user)
 
 def calculateNewScore(eventLog):
@@ -30,8 +30,8 @@ def calculateNewScore(eventLog):
 def auditEventLog(eventLog):
 	UpdateService.auditEventLog(eventLog)
 
-def processAlert(user):
-	print 'Hooray!'
+def processAlert(user, eventLog):
+	EmailService.sendEmailAlert(user, eventLog)
 
 def calculateHoursScore(eventLog):
 	hourFreq = UpdateService.updateAndReturnHourFreqForUser(eventLog)

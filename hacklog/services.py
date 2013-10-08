@@ -1,5 +1,33 @@
 import accessdata 
 from datetime import date
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+
+class EmailService:
+
+        def sendEmailAlert(user, eventLog)
+                from = "sshAlerts@dandb.com"
+                to = "nrhine@dandb.com"
+
+                # Create message container - the correct MIME type is multipart/alternative.
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = "EMAIL ALERT - CONCERNING SSH ACTIVITY ON: " + eventLog.server
+                msg['From'] = from
+                msg['To'] = to
+
+                text = "Hi!\nHow are you?\nThere was some suspicious activity on the following server: " + eventLog.server + " for user: " + user.username + "\n Their current score is " + user.score
+
+                # Record the MIME types of both parts - text/plain and text/html.
+                part = MIMEText(text, 'plain')
+
+                msg.attach(part)
+
+                s = smtplib.SMTP('localhost')
+                s.sendmail(from, to, msg.as_string())
+                s.quit()
 
 
 class UpdateService:
