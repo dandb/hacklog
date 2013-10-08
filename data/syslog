@@ -1,0 +1,2 @@
+Oct  4 17:57:37 192.168.56.1 sshd[1690]: Accepted publickey for mvalenzuela from 10.42.28.22 port 7786 ssh2
+Oct  4 17:57:37 192.168.56.1 ssshd[6520]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=10.42.10.22 user=msacks
