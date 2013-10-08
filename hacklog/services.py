@@ -37,13 +37,13 @@ class UpdateService:
 
 	def updateAndReturnHourFreqForUser(eventLog):
 		hourProfile = HoursDao.getProfileByUser(eventLog.username)
-		hour = 
+		hour = eventLog.date.hour 
 		hourFreq = updateAndReturnFreqForProfile(hourProfile, hour)
 		return hourFreq
 
 	def updateAndReturnDayFreqForUser(eventLog):
 		dayProfile = DaysDao.getProfileByUser(eventLog.username)
-		day = 
+		day = eventLog.date.strftime('%a')
 		dayFreq = updateAndReturnFreqForProfile(dayProfile, day)
 		return dayFreq
 

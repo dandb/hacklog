@@ -49,7 +49,6 @@ def calculateIpScore(eventLog):
 	ipFreq = UpdateService.updateAndReturnIpFreqForUser(eventLog)
 	ipScore = calculateSubscore(ipFreq) * Weight.IP
 
-
 def calculateSubscore(freq):
 	subscore = math.log(freq, 2)
 	subscore = subscore*-10
