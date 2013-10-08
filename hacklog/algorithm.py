@@ -4,7 +4,7 @@ from math import log
 Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, IP=15)
 Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=3)
 
-def processEventLog(eventLog)
+def processEventLog(eventLog):
 	auditEventLog(eventLog)
 	user = calculateNewScore(eventLog)
 	if user.score > Threshold.CRITICAL
@@ -14,7 +14,7 @@ def processEventLog(eventLog)
 			processAlert(user)
 		UpdateService.updateScareCount(user)
 
-def calculateNewScore(eventLog)
+def calculateNewScore(eventLog):
 	successScore = calculateSuccessScore(eventLog.success)
 	ipLocationScore = calculateIpLocationScore(eventLog.ipAddress)
 
@@ -27,8 +27,11 @@ def calculateNewScore(eventLog)
 	
 	user = UpdateService.updateUserScore(totalScore, eventLog)
 
-def auditEventLog(eventLog)
+def auditEventLog(eventLog):
 	UpdateService.auditEventLog(eventLog)
+
+def processAlert(user):
+	print 'Hooray!'
 
 def calculateHoursScore(eventLog):
 	hourFreq = UpdateService.updateAndReturnHourFreqForUser(eventLog)
@@ -47,20 +50,20 @@ def calculateIpScore(eventLog):
 	ipScore = calculateSubscore(ipFreq) * Weight.IP
 
 
-def calculateSubscore(freq)
+def calculateSubscore(freq):
 	subscore = math.log(freq, 2)
 	subscore = subscore*-10
 	if(subscore>100)
 		return 100
 	return subscore
 
-def calculateSuccessScore(success)
+def calculateSuccessScore(success):
 	successScore = Weight.SUCCESS
 	if success
 		successScore = 0
 	return successScore
 
-def calculateIpLocationScore(ipAddress)
+def calculateIpLocationScore(ipAddress):
 	ipScore = Weight.EXT
 	if IpAddress.checkIpForVpn(ipAddress)
 		ipScore=Weight.VPN

@@ -29,7 +29,7 @@ class UpdateService:
 		ipFreq = updateAndReturnFreqForProfile(ipProfile, eventLog.ipAddress)
 		return ipFreq
 
-	def updateAndReturnFreqForProfile(profile, value)
+	def updateAndReturnFreqForProfile(profile, value):
 		profileDict = profile.profile
 		profileDict[value] = profileDict.get(value,0) + 1
 		profile.totalCount+=1
@@ -37,16 +37,16 @@ class UpdateService:
 		GenericDAO.saveEntity(profile)
 		return freq
 
-	def auditEventLog(eventLog)
+	def auditEventLog(eventLog):
 		GenericDAO.saveEntity(eventLog)
 
-	def updateUserScore(score, eventLog)
+	def updateUserScore(score, eventLog):
 		user = UserDao.getUserByName(eventLog.username)
 		user.score = score
 		GenericDAO.saveEntity(user)
 		return user
 
-	def updateUserScareCount(user)
+	def updateUserScareCount(user):
 		user.scareCount += 1
 		user.lastScareDate = date.today()
 		GenericDAO.saveEntity(user)

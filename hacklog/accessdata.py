@@ -15,7 +15,7 @@ class UserDao:
 	def __init__():
 		self.Session = sessionmaker(db)
 
-	def getUserByName(user)
+	def getUserByName(user):
 		session = self.Session()
 		fullUser = session.query(Users).filter(Users.username == user).first()
 		return fullUser
