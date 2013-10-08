@@ -1,5 +1,5 @@
 import sys
-import datetime 
+from datetime import datetime 
 import time
 import thread
 import random
@@ -10,6 +10,10 @@ from twisted.internet import reactor
 from optparse import OptionParser
 from ConfigParser import ConfigParser
 
+from Queue import Queue
+
+queue = Queue()
+
 class SyslogServer():
     """
     Syslog server based on twisted library
@@ -19,6 +23,7 @@ class SyslogServer():
       self.port = 10514
       self.bind_address = '127.0.0.1'
       self.config_file = './server.conf'
+      self.debug = 10
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -28,25 +33,40 @@ class SyslogServer():
          self.bind_address = config.get('SyslogServer', 'bind_address')
        if config.has_option('SyslogServer', 'bind_port'):
          self.port = config.getint('SyslogServer', 'port')       
+ 
+    def messageParcer(self):
+
+       if self.debug <= 10:
+          print "messageParcer in thread " + str(thread.get_ident())
+
+       while True:
+          msg = queue.get()
+          delay = random.random()
+          time.sleep(delay)
+          print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
 
     def run(self):
-      reactor.listenUDP(self.port, ReadSyslog())
+      reactor.callInThread(self.messageParcer)
+      reactor.listenUDP(self.port, SyslogReader())
       reactor.run() 
 
     def stop(self):
       reactor.stop()
 
 
-class ReadSyslog(DatagramProtocol):
-
-    def parceMessage(self, data, host, port):
-        delay = random.random()
-        time.sleep(delay)
-        print "sleeped for " + str(delay) + " in thread " + str(thread.get_ident()) + " received %r from %s:%d" % (data, host, port)
-#       self.transport.write(data, (host, port))
+class SyslogReader(DatagramProtocol):
 
     def datagramReceived(self, data, (host, port)):
-        reactor.callInThread(self.parceMessage, data, host, port)
+        syslogMsg = SyslogMsg(data, host, port)
+        queue.put(syslogMsg)
+
+class SyslogMsg():
+
+   def __init__(self, data='', host='', port=0):
+     self.data = data
+     self.host = host
+     self.port = port
+     self.date = datetime.now()
 
 def main():
     usage = "usage: %prog -c config_file"
