@@ -109,7 +109,9 @@ def update_user(user_name, user_ip, is_login_ok, dt_str, host):
 #for host in os.listdir("logs"):
 #  if os.path.isfile("logs/" + host + "/secure"):
 #    log = open( "logs/" + host + "/secure", "r" )
-with open(sys.argv[1]) as syslogFile:
+fileName = sys.argv[1] if sys.argv[1] else "syslog"
+
+with open(fileName) as syslogFile:
     for line in syslogFile:
         if line:
             parse_line(line)
