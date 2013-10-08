@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from datetime import date
+from datetime import date, datetime
 
 db = create_engine('sqlite:///hacklog.db', echo=True)
 Base = declarative_base()
@@ -93,6 +93,14 @@ class IpAddress(Base):
 		self.username=username
 		self.profile = profile
 		self.totalCount = totalCount
+
+class SyslogMsg():
+
+   def __init__(self, data='', host='', port=0):
+     self.data = data
+     self.host = host
+     self.port = port
+     self.date = datetime.now()
 
 def create_tables():
         Base.metadata.create_all(db)
