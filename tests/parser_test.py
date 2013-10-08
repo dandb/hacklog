@@ -1,5 +1,9 @@
 import unittest
 import sys
+import os.path
+#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+#sys.path.append("./hacklog/hacklog/")
+#from hacklog import parser
 import re
 
 def parse_line_length(data):
