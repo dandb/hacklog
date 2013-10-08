@@ -1,12 +1,10 @@
-import sqlite3
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import date
 
 db = create_engine('sqlite:///hacklog.db', echo=True)
 Base = declarative_base()
-
-def create_tables():
-        Base.metadata.create_all(db)
 
 class EventLog(Base):
 	__tablename__ = 'eventLog'
@@ -24,17 +22,21 @@ class EventLog(Base):
 		self.success = success
 		self.server = server
 
-class CurrentStatus(Base):
-	__tablename__ = 'currentStatus'	
+class User(Base):
+	__tablename__ = 'users'	
 	
 	username = Column('username', String, primary_key=True)
 	date = Column('date', DateTime)
 	score = Column('score', Integer)
+	scareCount = Column('scareCount', Integer)
+	lastScareDate = Column('lastScareDate', DateTime)
 
 	def __init__(self, username, date, score):
 		self.username=username
 		self.date=date
 		self.score=score
+		self.scareCount=0
+		self.lastScareDate = date.today()
 
 class Days(Base):
 	__tablename__ = 'days'
@@ -92,6 +94,8 @@ class IpAddress(Base):
 		self.profile = profile
 		self.totalCount = totalCount
 
+def create_tables():
+        Base.metadata.create_all(db)
 
 def enum(**enums):
 	return type('Enum', (), enums)

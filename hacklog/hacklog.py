@@ -1,8 +1,7 @@
 import sys
-from ConfigParser import ConfigParser
+import ConfigParser
 import argparse
 import entities
-
 import sqlite3
 
 def main():
@@ -24,7 +23,7 @@ def main():
 		print 'You must have the right value'
 		sys.exit(1)
 	print test	
-	create_tables()
+	entities.create_tables()
 
 if __name__ == "__main__":
 	main()
