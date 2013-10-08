@@ -1,5 +1,7 @@
 *.py[cod]
 
+hacklog/hacklog.db
+
 # C extensions
 *.so
 
