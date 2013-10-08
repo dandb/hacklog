@@ -1,5 +1,4 @@
 import sys
-from datetime import datetime 
 import time
 import thread
 import random
@@ -9,6 +8,8 @@ from twisted.internet import reactor
 
 from optparse import OptionParser
 from ConfigParser import ConfigParser
+
+from entities import SyslogMsg
 
 from Queue import Queue
 
@@ -59,14 +60,6 @@ class SyslogReader(DatagramProtocol):
     def datagramReceived(self, data, (host, port)):
         syslogMsg = SyslogMsg(data, host, port)
         queue.put(syslogMsg)
-
-class SyslogMsg():
-
-   def __init__(self, data='', host='', port=0):
-     self.data = data
-     self.host = host
-     self.port = port
-     self.date = datetime.now()
 
 def main():
     usage = "usage: %prog -c config_file"
