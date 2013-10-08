@@ -1,5 +1,6 @@
 from entities import EventLog
 from datetime import datetime
+import re
 
 class Parser():
   def __init__(self, successPattern=None, failurePattern=None):
@@ -8,7 +9,7 @@ class Parser():
 
   def parseLogLine(self, line):
 
-    logline = re.sub('\s{2,}', ' ', logline)
+    logline = re.sub('\s{2,}', ' ', line)
     logline = logline.split(' ')
 
     if len(logline) < 5:
