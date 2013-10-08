@@ -18,7 +18,6 @@ def logMessages(logData):
         sysLogMessage = "ssshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'])
 
     #log the message in syslogs
-    #print sysLogMessage
     logger.info(sysLogMessage)
 
 #this function reads each log from the csv
