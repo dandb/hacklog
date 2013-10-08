@@ -6,6 +6,15 @@ from datetime import date, datetime
 db = create_engine('sqlite:///hacklog.db', echo=True)
 Base = declarative_base()
 
+def enum(**enums):
+	return type('Enum', (), enums)
+
+Days= enum(MON='monday', TUES='tuesday', WED='wednesday', THURS='thursday', FRI='friday', SAT='saturday', SUN='sunday')
+Hours = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
+
+def create_tables():
+        Base.metadata.create_all(db)
+
 class EventLog(Base):
 	__tablename__ = 'eventLog'
 
@@ -94,6 +103,7 @@ class IpAddress(Base):
 		self.profile = profile
 		self.totalCount = totalCount
 
+<<<<<<< HEAD
 class SyslogMsg():
 
    def __init__(self, data='', host='', port=0):
@@ -107,7 +117,20 @@ def create_tables():
 
 def enum(**enums):
 	return type('Enum', (), enums)
+=======
+	def checkIpForVpn(ip):
+		quadrantList = ip.split('.')
+		if quadrantList[0] == '10' && quadrantList[1] == '42'
+			return true
+		return false
 
-Days= enum(MON='monday', TUES='tuesday', WED='wednesday', THURS='thursday', FRI='friday', SAT='saturday', SUN='sunday')
-Hours = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
-Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=10, INT=10, IP=10)
+	def checkIpForInternal(ip):
+		quadrantList = ip.split('.')
+		if quadrantList[0] == '10'
+			if quadrantList[1] == '24' || quadrantList[1] == '26'
+				return true
+		elif quadrantList[0] == '172' && quadrantList[1] == '16'
+			return true
+		return false
+>>>>>>> HACKLOG-3 Adding algorithm and services/dao layer to communicate with ORM
+
