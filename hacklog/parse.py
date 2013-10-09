@@ -1,4 +1,5 @@
 from entities import EventLog
+from entities import SysLogMsg
 from datetime import datetime
 import re
 
@@ -7,15 +8,17 @@ class Parser():
     self.successPattern = successPattern or 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port'
     self.failurePattern = failurePattern or 'pam_unix\(sshd:auth\):\s+authentication\s+failure\;\s+login=\s+uid=0\s+euid=0\s+tty=ssh+\s+ruser=+\s+rhost=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+user=([0-9a-zA-Z_-]+)'
 
-  def parseLogLine(self, line):
+  def parseLogLine(self, message):
 
+    line = message.data
+    host = message.host
     logline = re.sub('\s{2,}', ' ', line)
     logline = logline.split(' ')
 
     if len(logline) < 5:
       return True
 
-    host = logline.pop(0)
+    logline.pop(0)
     log_entry = ' '.join(logline)
 
     # successful login
