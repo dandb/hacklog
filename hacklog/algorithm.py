@@ -9,6 +9,7 @@ Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, I
 Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=3)
 
 updateService = services.UpdateService()
+emailService = services.EmailService()
 
 def testProcess():
 	eventLog = EventLog(date.today(), 'nrhine', '127.0.0.1', True, 'ae1-app80-prd')
@@ -18,6 +19,7 @@ def processEventLog(eventLog):
 	auditEventLog(eventLog)
 	score = calculateNewScore(eventLog)
 	user = updateService.fetchUser(eventLog)
+	updateService.updateUserScore(user, score)
 	if score > Threshold.CRITICAL:
                 processAlert(user, eventLog)
         elif score > Threshold.SCARY:
@@ -35,14 +37,13 @@ def calculateNewScore(eventLog):
 	hourScore = calculateHoursScore(eventLog)
 	
 	totalScore = successScore + ipLocationScore + serverScore + ipScore + dayScore + hourScore
-	
 	return totalScore
 
 def auditEventLog(eventLog):
 	updateService.auditEventLog(eventLog)
 
 def processAlert(user, eventLog):
-	EmailService.sendEmailAlert(user, eventLog)
+	emailService.sendEmailAlert(user, eventLog)
 
 def calculateHoursScore(eventLog):
 	hourFreq = updateService.updateAndReturnHourFreqForUser(eventLog)
@@ -67,9 +68,9 @@ def calculateIpScore(eventLog):
 def calculateSubscore(freq):
 	subscore = math.log(freq, 2)
 	subscore = subscore*-10
-	if(subscore>100):
+	if subscore>100 :
 		return 100
-	return subscore
+	return float(subscore)/100
 
 def calculateSuccessScore(success):
 	successScore = Weight.SUCCESS

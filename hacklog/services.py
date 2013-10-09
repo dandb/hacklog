@@ -10,7 +10,9 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTER
 
 class EmailService:
 
-        def sendEmailAlert(user, eventLog):
+        def sendEmailAlert(self, user, eventLog):
+		print eventLog.date
+		print user.score
                 fromAddress = 'sshAlerts@dandb.com'
                 toAddress = 'nrhine@dandb.com'
 
@@ -20,7 +22,7 @@ class EmailService:
                 msg['From'] = fromAddress
                 msg['To'] = toAddress
 
-                text = "Hi!\nHow are you?\nThere was some suspicious activity on the following server: " + eventLog.server + " for user: " + user.username + "\n Their current score is " + user.score
+                text = "Hi!\nHow are you?\nThere was some suspicious activity on the following server: " + eventLog.server + " for user: " + user.username + "\n Their current score is " + str(user.score)
 
                 # Record the MIME types of both parts - text/plain and text/html.
                 part = MIMEText(text, 'plain')
@@ -48,7 +50,7 @@ class UpdateService:
 		profileDict = profile.profile
 		profileDict[value] = profileDict.get(value,0) + 1
 		profile.totalCount+=1
-		freq = profileDict[value]/profile.totalCount
+		freq = float(profileDict[value])/profile.totalCount
 		profile.profile = profileDict
 		self._genericDao.mergeEntity(profile)
 		return freq
@@ -104,4 +106,8 @@ class UpdateService:
 	def updateUserScareCount(self, user):
 		user.scareCount += 1
 		user.lastScareDate = date.today()
+		self._genericDao.mergeEntity(user)
+
+	def updateUserScore (self, user, score):
+		user.score = score
 		self._genericDao.mergeEntity(user)
