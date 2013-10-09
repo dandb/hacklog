@@ -1,5 +1,5 @@
 from accessdata import *
-from datetime import date
+from datetime import datetime
 import smtplib
 from entities import *
 
@@ -105,9 +105,13 @@ class UpdateService:
 
 	def updateUserScareCount(self, user):
 		user.scareCount += 1
-		user.lastScareDate = date.today()
+		user.lastScareDate = datetime.today()
 		self._genericDao.mergeEntity(user)
 
 	def updateUserScore (self, user, score):
 		user.score = score
+		self._genericDao.mergeEntity(user)
+
+	def resetUserScareCount(self, user):
+		user.scareCount = 0
 		self._genericDao.mergeEntity(user)

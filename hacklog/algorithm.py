@@ -6,7 +6,7 @@ import math
 from datetime import date
 
 Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, IP=15)
-Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=3)
+Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=3, SCAREDATEEXPIRE=1)
 
 updateService = services.UpdateService()
 emailService = services.EmailService()
@@ -19,13 +19,16 @@ def processEventLog(eventLog):
 	auditEventLog(eventLog)
 	score = calculateNewScore(eventLog)
 	user = updateService.fetchUser(eventLog)
+	timeDiff = eventLog.date - user.lastScareDate
 	updateService.updateUserScore(user, score)
 	if score > Threshold.CRITICAL:
                 processAlert(user, eventLog)
         elif score > Threshold.SCARY:
                 if user.scareCount >= Threshold.SCARECOUNT:
                         processAlert(user, eventLog)
-                user = updateService.updateScareCount(user)
+                user = updateService.updateUserScareCount(user)
+	elif timeDiff.days >= Threshold.SCAREDATEEXPIRE:
+		updateService.resetUserScareCount(user)
 
 def calculateNewScore(eventLog):
 	successScore = calculateSuccessScore(eventLog.success)
