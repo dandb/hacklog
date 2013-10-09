@@ -18,7 +18,7 @@ class Parser():
     if len(logline) < 5:
       return True
 
-    data = logline.pop(0)
+    logline.pop(0)
     log_entry = ' '.join(logline)
 
     # successful login
