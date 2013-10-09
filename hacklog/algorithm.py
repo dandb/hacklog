@@ -16,13 +16,14 @@ def testProcess():
 
 def processEventLog(eventLog):
 	auditEventLog(eventLog)
-	user = calculateNewScore(eventLog)
-	if user.score > Threshold.CRITICAL:
-		processAlert(user, eventLog)
-	elif user.score > Threshold.SCARY:
-		if user.scareCount >= Threshold.SCARECOUNT:
-			processAlert(user, eventLog)
-		updateService.updateScareCount(user)
+	score = calculateNewScore(eventLog)
+	user = updateService.fetchUser(eventLog)
+	if score > Threshold.CRITICAL:
+                processAlert(user, eventLog)
+        elif score > Threshold.SCARY:
+                if user.scareCount >= Threshold.SCARECOUNT:
+                        processAlert(user, eventLog)
+                user = updateService.updateScareCount(user)
 
 def calculateNewScore(eventLog):
 	successScore = calculateSuccessScore(eventLog.success)
@@ -35,8 +36,7 @@ def calculateNewScore(eventLog):
 	
 	totalScore = successScore + ipLocationScore + serverScore + ipScore + dayScore + hourScore
 	
-	user = updateService.updateUserScore(totalScore, eventLog)
-	return user
+	return totalScore
 
 def auditEventLog(eventLog):
 	updateService.auditEventLog(eventLog)

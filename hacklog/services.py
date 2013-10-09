@@ -50,7 +50,7 @@ class UpdateService:
 		profile.totalCount+=1
 		freq = profileDict[value]/profile.totalCount
 		profile.profile = profileDict
-		self._genericDao.saveEntity(profile)
+		self._genericDao.mergeEntity(profile)
 		return freq
 
 	def updateAndReturnHourFreqForUser(self, eventLog):
@@ -62,6 +62,7 @@ class UpdateService:
 				rangeName = self._rangeName[self._hourRanges.index(hourRange)]
 		if hourProfile == None:
 			hourProfile = Hours(eventLog.date, eventLog.username, {}, 0)
+			self._genericDao.saveEntity(hourProfile)
 		hourFreq = self.updateAndReturnFreqForProfile(hourProfile, rangeName)
 		return hourFreq
 
@@ -70,6 +71,7 @@ class UpdateService:
 		day = eventLog.date.strftime('%a')
 		if dayProfile == None:
 			dayProfile = Days(eventLog.date, eventLog.username, {}, 0)
+			self._genericDao.saveEntity(dayProfile)
 		dayFreq = self.updateAndReturnFreqForProfile(dayProfile, day)
 		return dayFreq
 
@@ -77,6 +79,7 @@ class UpdateService:
 		serverProfile = self._serverDao.getProfileByUser(eventLog.username)
 		if serverProfile == None:
 			serverProfile = Servers(eventLog.date, eventLog.username, {}, 0)
+			self._genericDao.saveEntity(serverProfile)
 		serverFreq = self.updateAndReturnFreqForProfile(serverProfile, eventLog.server)
 		return serverFreq
 
@@ -84,22 +87,21 @@ class UpdateService:
 		ipProfile = self._ipAddressDao.getProfileByUser(eventLog.username)
 		if ipProfile == None:
 			ipProfile = IpAddress(eventLog.date, eventLog.username, {}, 0)
+			self._genericDao.saveEntity(ipProfile)
 		ipFreq = self.updateAndReturnFreqForProfile(ipProfile, eventLog.ipAddress)
 		return ipFreq
 
 	def auditEventLog(self, eventLog):
 		self._genericDao.saveEntity(eventLog)
 
-	def updateUserScore(self, score, eventLog):
+	def fetchUser(self, eventLog):
 		user = self._userDao.getUserByName(eventLog.username)
 		if user == None:
-			user = User(eventLog.username, eventLog.date, score)
-		else:
-			user.score = score
-		self._genericDao.saveEntity(user)
+			user = User(eventLog.username, eventLog.date, 0)
+			self._genericDao.saveEntity(user)
 		return user
 
 	def updateUserScareCount(self, user):
 		user.scareCount += 1
 		user.lastScareDate = date.today()
-		self._genericDao.saveEntity(user)
+		self._genericDao.mergeEntity(user)
