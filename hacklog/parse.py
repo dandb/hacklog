@@ -1,5 +1,5 @@
 from entities import EventLog
-from entities import SysLogMsg
+from entities import SyslogMsg
 from datetime import datetime
 import re
 

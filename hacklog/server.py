@@ -12,6 +12,7 @@ from ConfigParser import ConfigParser
 from parse import Parser
 from entities import SyslogMsg
 from Queue import Queue
+from entities import create_tables
 
 queue = Queue()
 parser = Parser()
@@ -75,6 +76,7 @@ def main():
 
     server = SyslogServer()
     server.parceConfig(options.config_file)
+    create_tables()
 
     server.run()
 
