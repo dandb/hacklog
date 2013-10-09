@@ -2,18 +2,19 @@ import sys
 import time
 import thread
 import random
+import algorithm
 
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
 from optparse import OptionParser
 from ConfigParser import ConfigParser
-
+from parse import Parser
 from entities import SyslogMsg
-
 from Queue import Queue
 
 queue = Queue()
+parser = Parser()
 
 class SyslogServer():
     """
@@ -43,6 +44,8 @@ class SyslogServer():
        while True:
           msg = queue.get()
           delay = random.random()
+	  eventLog = parser.parseLogLine(msg)
+	  algorithm.processEventLog(eventLog)
           time.sleep(delay)
           print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
 

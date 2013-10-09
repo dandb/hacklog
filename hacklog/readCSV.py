@@ -55,13 +55,13 @@ def main():
         ipAddress = sys.argv[2]
     else:
         fileName = "data"
-        ipAddress = "192.168.56.110"
+        ipAddress = "127.0.0.1"
 
     #these statements set up the syslog handler
     global logger
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    handler = logging.handlers.SysLogHandler(address=(ipAddress, 514))
+    handler = logging.handlers.SysLogHandler(address=(ipAddress, 10514))
     logger.addHandler(handler)
 
     #open file and generate a reader for csv files and close file
