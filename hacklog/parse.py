@@ -15,9 +15,7 @@ class Parser():
     if len(logline) < 5:
       return True
 
-    dt_str = logline.pop(0) + ' ' + logline.pop(0) + ' ' + logline.pop(0)
     host = logline.pop(0)
-    prog = logline.pop(0).split(':')[0]
     log_entry = ' '.join(logline)
 
     # successful login
@@ -26,10 +24,11 @@ class Parser():
       user_name = m.groups(0)[0]
       user_ip = m.groups(0)[1]
       return EventLog(datetime.now(), user_name, user_ip, True, host)
+
     # successful login
     m = re.match(self.failurePattern, log_entry)
     if m:
-      user_name = m.groups(0)[0]
-      user_ip = m.groups(0)[1]
+      user_name = m.groups(0)[1]
+      user_ip = m.groups(0)[0]
       return EventLog(datetime.now(), user_name, user_ip, False, host)
     
