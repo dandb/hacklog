@@ -3,9 +3,10 @@ import time
 import thread
 import random
 import algorithm
+import signal
 
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import reactor
+from twisted.internet import reactor, defer
 
 from optparse import OptionParser
 from ConfigParser import ConfigParser
@@ -36,6 +37,12 @@ class SyslogServer():
          self.bind_address = config.get('SyslogServer', 'bind_address')
        if config.has_option('SyslogServer', 'bind_port'):
          self.port = config.getint('SyslogServer', 'port')       
+    
+
+    def interrupt(self, signum, stackframe):
+      print "Got signal: %s" % signum
+      queue.put(SyslogMsg())
+      self.stop()
  
     def messageParcer(self):
 
@@ -46,14 +53,21 @@ class SyslogServer():
           msg = queue.get()
           delay = random.random()
 	  eventLog = parser.parseLogLine(msg)
+	  if eventLog is None
+		break
 	  algorithm.processEventLog(eventLog)
           time.sleep(delay)
           print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
+    
+    def cleanupThread(self):
+      threadPool = reactor.getThreadPool()
+      threadPool.stop()
 
     def run(self):
+      signal.signal(signal.SIGINT, self.interrupt)
       reactor.callInThread(self.messageParcer)
       reactor.listenUDP(self.port, SyslogReader())
-      reactor.run() 
+      reactor.run()
 
     def stop(self):
       reactor.stop()
