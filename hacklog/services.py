@@ -10,9 +10,10 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTER
 
 class EmailService:
 
+	def __init__(self):
+		self._smtpSend = smtplib.SMTP('localhost')
+
         def sendEmailAlert(self, user, eventLog):
-		print eventLog.date
-		print user.score
                 fromAddress = 'sshAlerts@dandb.com'
                 toAddress = 'nrhine@dandb.com'
 
@@ -29,9 +30,7 @@ class EmailService:
 
                 msg.attach(part)
 
-                s = smtplib.SMTP('localhost')
-                s.sendmail(fromAddress, toAddress, msg.as_string())
-                s.quit()
+                self._smtpSend.sendmail(fromAddress, toAddress, msg.as_string())
 
 
 class UpdateService:
