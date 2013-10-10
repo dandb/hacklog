@@ -10,28 +10,31 @@ class Parser():
 
   def parseLogLine(self, message):
 
-    line = message.data
-    host = message.host
-    logline = re.sub('\s{2,}', ' ', line)
-    logline = logline.split(' ')
+    if message:
+        line = message.data
+        host = message.host
+        logline = re.sub('\s{2,}', ' ', line)
+        logline = logline.split(' ')
 
-    if len(logline) < 5:
-      return True
+        if len(logline) < 5:
+          return True
 
-    logline.pop(0)
-    log_entry = ' '.join(logline)
+        logline.pop(0)
+        log_entry = ' '.join(logline)
 
-    # successful login
-    m = re.match(self.successPattern, log_entry)
-    if m:
-      user_name = m.groups(0)[0]
-      user_ip = m.groups(0)[1]
-      return EventLog(datetime.now(), user_name, user_ip, True, host)
+        # successful login
+        m = re.match(self.successPattern, log_entry)
+        if m:
+          user_name = m.groups(0)[0]
+          user_ip = m.groups(0)[1]
+          return EventLog(datetime.now(), user_name, user_ip, True, host)
 
-    # successful login
-    m = re.match(self.failurePattern, log_entry)
-    if m:
-      user_name = m.groups(0)[1]
-      user_ip = m.groups(0)[0]
-      return EventLog(datetime.now(), user_name, user_ip, False, host)
-    
+        # successful login
+        m = re.match(self.failurePattern, log_entry)
+        if m:
+          user_name = m.groups(0)[1]
+          user_ip = m.groups(0)[0]
+          return EventLog(datetime.now(), user_name, user_ip, False, host)
+    else:
+        return None
+
