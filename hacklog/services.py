@@ -11,21 +11,22 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTER
 
 class EmailService:
 
-	def sendMail(self, fromAddress, toAddress, msg):
+	def sendMail(self, toAddress, msg):
 		if SysLogServer.emailTest:
 			gmailUser = 'sshAlertsTest@gmail.com'
 			gmailPassword = 'Dandb@123'
 			self.mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+			fromAddress = gmailUser
 		else:
 			self.mailServer = smtplib.SMTP('localhost')
+			fromAddress = 'sshAlerts@dandb.com'
+                msg['From'] = fromAddress
 		self.mailServer.ehlo()
 		self.mailServer.starttls()
 		self.mailServer.ehlo()
 		if gmailTest:
 			self.mailServer.login(gmailUser, gmailPassword)
-			self.mailServer.sendmail(gmailUser, toAddress, msg)
-		else:
-			self.mailServer.sendmail(fromAddress, toAddress, msg)
+		self.mailServer.sendmail(fromAddress, toAddress, msg.as_string())
 		self.mailServer.close()
 
         def sendEmailAlert(self, user, eventLog):
@@ -35,7 +36,6 @@ class EmailService:
                 # Create message container - the correct MIME type is multipart/alternative.
                 msg = MIMEMultipart()
                 msg['Subject'] = "EMAIL ALERT - CONCERNING SSH ACTIVITY ON: " + eventLog.server
-                msg['From'] = fromAddress
                 msg['To'] = toAddress
 
                 text = "Hi!\nHow are you?\nThere was some suspicious activity on the following server: " + eventLog.server + " for user: " + user.username + "\n Their current score is " + str(user.score)
@@ -45,7 +45,7 @@ class EmailService:
 
                 msg.attach(part)
 
-                self.sendMail(fromAddress, toAddress, msg.as_string())
+                self.sendMail(toAddress, msg)
 
 
 class UpdateService:
