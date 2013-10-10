@@ -28,6 +28,7 @@ class SyslogServer():
       self.bind_address = '127.0.0.1'
       self.config_file = './server.conf'
       self.debug = 10
+      self.running = True
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -41,6 +42,7 @@ class SyslogServer():
 
     def interrupt(self, signum, stackframe):
       print "Got signal: %s" % signum
+      self.running = False
       queue.put(SyslogMsg())
       self.stop()
  
@@ -49,15 +51,14 @@ class SyslogServer():
        if self.debug <= 10:
           print "messageParcer in thread " + str(thread.get_ident())
 
-       while True:
+       while self.running:
           msg = queue.get()
           delay = random.random()
 	  eventLog = parser.parseLogLine(msg)
-	  if eventLog is None
-		break
-	  algorithm.processEventLog(eventLog)
-          time.sleep(delay)
-          print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
+	  if eventLog is not None:
+	      algorithm.processEventLog(eventLog)
+              time.sleep(delay)
+              print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
     
     def cleanupThread(self):
       threadPool = reactor.getThreadPool()
