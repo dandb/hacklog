@@ -26,9 +26,10 @@ class SyslogServer():
     def __init__(self):
       self.port = 10514
       self.bind_address = '127.0.0.1'
-      self.config_file = './server.conf'
+      self.config_file = '../conf/server.conf'
       self.debug = 10
       self.running = True
+      self.usage = "usage: %prog -c config_file"
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -38,7 +39,14 @@ class SyslogServer():
          self.bind_address = config.get('SyslogServer', 'bind_address')
        if config.has_option('SyslogServer', 'bind_port'):
          self.port = config.getint('SyslogServer', 'port')       
-    
+
+    def readCmdArgs(self):
+      cmdParser = OptionParser(usage=self.usage)
+      cmdParser.add_option("-c", "--config", dest="config_file",
+                      help="configuration file", metavar="FILE")
+      (options, args) = cmdParser.parse_args()
+      if options.config_file:
+        self.config_file = options.config_file
 
     def interrupt(self, signum, stackframe):
       print "Got signal: %s" % signum
@@ -70,6 +78,12 @@ class SyslogServer():
       reactor.listenUDP(self.port, SyslogReader())
       reactor.run()
 
+    def start(self):
+      self.readCmdArgs()
+      self.parceConfig(self.config_file)
+      create_tables()
+      self.run() 
+
     def stop(self):
       reactor.stop()
 
@@ -81,19 +95,9 @@ class SyslogReader(DatagramProtocol):
         queue.put(syslogMsg)
 
 def main():
-    usage = "usage: %prog -c config_file"
-    parser = OptionParser(usage=usage)
-    parser.add_option("-c", "--config", dest="config_file",
-                      help="configuration file", metavar="FILE")
-    (options, args) = parser.parse_args()
-    if not options.config_file:
-        parser.error('you must specify a configuration file')
 
     server = SyslogServer()
-    server.parceConfig(options.config_file)
-    create_tables()
-
-    server.run()
+    server.start()
 
 if __name__ == '__main__':
     main()

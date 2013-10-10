@@ -1,2 +1,2 @@
 #/bin/sh
-python server.py -c server.conf
+python server.py -c ../conf/server.conf
