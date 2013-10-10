@@ -2,6 +2,7 @@ from accessdata import *
 from datetime import datetime
 import smtplib
 from entities import *
+from server import SyslogServer
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -10,15 +11,29 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTER
 
 class EmailService:
 
-	def __init__(self):
-		self._smtpSend = smtplib.SMTP('localhost')
+	def sendMail(self, fromAddress, toAddress, msg):
+		if SysLogServer.emailTest:
+			gmailUser = 'sshAlertsTest@gmail.com'
+			gmailPassword = 'Dandb@123'
+			self.mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+		else:
+			self.mailServer = smtplib.SMTP('localhost')
+		self.mailServer.ehlo()
+		self.mailServer.starttls()
+		self.mailServer.ehlo()
+		if gmailTest:
+			self.mailServer.login(gmailUser, gmailPassword)
+			self.mailServer.sendmail(gmailUser, toAddress, msg)
+		else:
+			self.mailServer.sendmail(fromAddress, toAddress, msg)
+		self.mailServer.close()
 
         def sendEmailAlert(self, user, eventLog):
                 fromAddress = 'sshAlerts@dandb.com'
                 toAddress = 'nrhine@dandb.com'
 
                 # Create message container - the correct MIME type is multipart/alternative.
-                msg = MIMEMultipart('alternative')
+                msg = MIMEMultipart()
                 msg['Subject'] = "EMAIL ALERT - CONCERNING SSH ACTIVITY ON: " + eventLog.server
                 msg['From'] = fromAddress
                 msg['To'] = toAddress
@@ -30,7 +45,7 @@ class EmailService:
 
                 msg.attach(part)
 
-                self._smtpSend.sendmail(fromAddress, toAddress, msg.as_string())
+                self.sendMail(fromAddress, toAddress, msg.as_string())
 
 
 class UpdateService:

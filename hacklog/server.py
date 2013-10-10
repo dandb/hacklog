@@ -32,6 +32,7 @@ class SyslogServer():
       self.loglevel = logging.DEBUG
       self.running = True
       self.usage = "usage: %prog -c config_file"
+      self.emailTest = True
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -43,6 +44,8 @@ class SyslogServer():
          self.port = config.getint('SyslogServer', 'port')       
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
+       if config.has_option('MailServer', 'gmail_test')
+	 self.emailTest = config.get('MailServer', 'gmail_test')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
