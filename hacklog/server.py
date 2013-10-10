@@ -55,7 +55,7 @@ class SyslogServer():
           msg = queue.get()
           delay = random.random()
 	  eventLog = parser.parseLogLine(msg)
-	  if eventLog is not None:
+	  if eventLog:
 	      algorithm.processEventLog(eventLog)
               time.sleep(delay)
               print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
