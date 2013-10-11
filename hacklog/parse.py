@@ -29,6 +29,7 @@ class Parser():
                     user_name = m.groups(0)[0]
                     user_ip = m.groups(0)[1]
                     date_time = m.groups(0)[3]
+                    date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
                     host = m.groups(0)[4]
                     returnEvent = EventLog(date_time, user_name, user_ip, True, host)
 
@@ -38,6 +39,7 @@ class Parser():
                     user_name = m.groups(0)[1]
                     user_ip = m.groups(0)[0]
                     date_time = m.groups(0)[2]
+                    date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
                     host = m.groups(0)[3]
                     returnEvent = EventLog(date_time, user_name, user_ip, False, host)
         elif "Source Network Address" in line and "Account Name:" in line:
