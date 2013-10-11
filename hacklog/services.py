@@ -11,8 +11,8 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8,12), AFTER
 
 class EmailService:
 
-	def __init__(self):
-		if server.emailTest:
+	def __init__(self, conf=None):
+		if conf.emailTest:
 			gmailUser = 'sshAlertsTest@gmail.com'
 			gmailPassword = 'Dandb@123'
 			self.mailServer = smtplib.SMTP('smtp.gmail.com', 587)
