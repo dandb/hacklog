@@ -12,7 +12,7 @@
 %{!?pythonpath: %global pythonpath %(%{__python} -c "import os, sys; print(os.pathsep.join(sys.path))")}
 
 Name: hacklog
-Version: 0.0.3
+Version: 0.0.4
 Release: 1%{?dist}
 Summary: Hacklog Server
 

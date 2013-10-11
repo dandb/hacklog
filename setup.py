@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "hacklog",
-    version = "0.0.3",
+    version = "0.0.4",
     author = "DandB Hackweek Team - Hackling Ouliers",
     author_email = "hacklog@dandb.com",
     description = ("Syslog server for detection of compromised user accounts by"
