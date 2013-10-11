@@ -3,7 +3,8 @@ from entities import EventLog
 from entities import enum
 from entities import IpAddress
 import math
-from datetime import date
+from datetime import datetime, timedelta
+import logging
 
 Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, IP=15)
 Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=2, SCAREDATEEXPIRE=1)
@@ -27,7 +28,7 @@ def processEventLog(eventLog):
                 if user.scareCount >= Threshold.SCARECOUNT:
                         processAlert(user, eventLog)
                 user = updateService.updateUserScareCount(user)
-	elif timeDiff.days >= Threshold.SCAREDATEEXPIRE:
+	elif abs(timeDiff.days) >= Threshold.SCAREDATEEXPIRE:
 		updateService.resetUserScareCount(user)
 
 def calculateNewScore(eventLog):
