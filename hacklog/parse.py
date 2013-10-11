@@ -23,7 +23,6 @@ class Parser():
                 logline.pop(0)
                 log_entry = ' '.join(logline)
                 # successful login
-                #self.successPattern = 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port\s+(\d{1,4})+\s+ssh2+\s+DATE_TIME\s+(\d{1,4}-\d{1,2}-\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+HOST\s+([\w\+%\-& ]+)'
                 m = re.match(self.successPattern, log_entry)
                 print m
                 if m:
