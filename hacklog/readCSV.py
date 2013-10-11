@@ -7,18 +7,28 @@ import sys
 import csv
 import logging
 import random
+from server import SyslogServer
 import os
 
 class ReadCSVFiles(object):
+    def __init__(self, testEnabled=False):
+        self.testEnabled = testEnabled
 
     #function that ships messages over the network
     def logMessages(self, logData):
         sysLogMessage = ''
         logData['Date Time'] = datetime.strptime(logData['Date Time'], '%Y-%m-%d %H:%M:%S')
-        if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
-            sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2 DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123),logData['Date Time'],logData['Server_Name'])
+        if self.testEnabled:
+            if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
+                sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2 DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123),logData['Date Time'],logData['Server_Name'])
+            else:
+                sysLogMessage = "sshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'],logData['Date Time'],logData['Server_Name'])
         else:
-            sysLogMessage = "sshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'],logData['Date Time'],logData['Server_Name'])
+            if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
+                sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123))
+            else:
+                sysLogMessage = "sshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'])
+
         #log the message in syslogs
         logger.info(sysLogMessage)
 
@@ -47,8 +57,13 @@ class ReadCSVFiles(object):
 #main function
 def main():
 
-    #initiate an object for the class
-    readCSV = ReadCSVFiles()
+    server = SyslogServer()
+    server.parceConfig("../conf/server.conf")
+    if server.testEnabled:
+        #initiate an object for the class
+        readCSV = ReadCSVFiles(server.testEnabled)
+    else:
+        readCSV = ReadCSVFiles()
 
     #initialize variables based on commandlines or defaults
     if len(sys.argv) >= 3:

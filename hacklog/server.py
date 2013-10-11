@@ -12,7 +12,7 @@ from twisted.internet import reactor, defer
 from optparse import OptionParser
 from ConfigParser import ConfigParser
 from parse import Parser
-from entities import SyslogMsg
+from entities import SyslogMsg, MailConf
 from Queue import Queue
 from entities import create_tables, create_db_engine
 
@@ -46,13 +46,13 @@ class SyslogServer():
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
        if config.has_option('MailServer', 'gmail_test'):
-         self.emailTest = config.get('MailServer', 'gmail_test')
+         self.emailTest = config.getboolean('MailServer', 'gmail_test')
        if config.has_option('Parse', 'test_enabled'):
-         self.testEnabled = config.get('Parse', 'test_enabled')
+         self.testEnabled = config.getboolean('Parse', 'test_enabled')
        if config.has_option('Parse', 'success_pattern'):
          self.successPattern = config.get('Parse', 'success_pattern')
        if config.has_option('Parse', 'failure_pattern'):
-			   self.failurePattern = config.get('Parse', 'failure_pattern')	
+         self.failurePattern = config.get('Parse', 'failure_pattern')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
@@ -77,7 +77,7 @@ class SyslogServer():
        parser = None
        # get parsing patterns from config file when in testing mode
        if self.testEnabled:
-         parser = Parser(self.successPattern, self.failurePattern)
+         parser = Parser(self.successPattern, self.failurePattern, self.testEnabled)
        else:
          parser = Parser()
 
@@ -102,7 +102,7 @@ class SyslogServer():
       self.readCmdArgs()
       self.parceConfig(self.config_file)
       self.setLogging()
-      setServices(MailConf(self.emailTest))
+      algorithm.setServices(MailConf(self.emailTest))
       create_db_engine(self)
       create_tables()
       self.run() 

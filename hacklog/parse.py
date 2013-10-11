@@ -6,17 +6,18 @@ import re
 Months = enum(Jan=01, Feb=02, Mar=03, Apr=04, May=05, Jun=06, Jul=07, Oct=10, Nov=11, Dec=12)
 
 class Parser():
-  def __init__(self, successPattern=None, failurePattern=None):
+  def __init__(self, successPattern=None, failurePattern=None, testEnabled=False):
+    self.testEnabled = testEnabled
     self.successPattern = successPattern or 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port'
     self.failurePattern = failurePattern or 'pam_unix\(sshd:auth\):\s+authentication\s+failure\;\s+login=\s+uid=0\s+euid=0\s+tty=ssh+\s+ruser=+\s+rhost=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+user=([0-9a-zA-Z_-]+)'
 
   def parseLogLine(self, message):
     returnEvent = False
     if message:
+
         line = message.data
         host = message.host
         logline = re.sub('\s{2,}', ' ', line)
-
         if "Source Network Address" not in line and "Account Name:" not in line:
             logline = logline.split(' ')
             if len(logline) > 5:
@@ -24,13 +25,16 @@ class Parser():
                 log_entry = ' '.join(logline)
                 # successful login
                 m = re.match(self.successPattern, log_entry)
-                print m
                 if m:
                     user_name = m.groups(0)[0]
                     user_ip = m.groups(0)[1]
-                    date_time = m.groups(0)[3]
-                    date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
-                    host = m.groups(0)[4]
+                    date_time = datetime.now()
+
+                    if self.testEnabled:
+                      date_time = m.groups(0)[3]
+                      date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
+                      host = m.groups(0)[4]
+
                     returnEvent = EventLog(date_time, user_name, user_ip, True, host)
 
                 # login failed
@@ -38,9 +42,13 @@ class Parser():
                 if m:
                     user_name = m.groups(0)[1]
                     user_ip = m.groups(0)[0]
-                    date_time = m.groups(0)[2]
-                    date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
-                    host = m.groups(0)[3]
+                    date_time = datetime.now()
+
+                    if self.testEnabled:
+                      date_time = m.groups(0)[2]
+                      date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
+                      host = m.groups(0)[3]
+
                     returnEvent = EventLog(date_time, user_name, user_ip, False, host)
         elif "Source Network Address" in line and "Account Name:" in line:
 

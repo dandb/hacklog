@@ -50,7 +50,7 @@ class EmailService:
 
 class UpdateService:
 
-	def __init__(self):
+	def __init__(self, conf=None):
 		self._hourRanges = [HourRangeEnum.EARLY, HourRangeEnum.DAWN, HourRangeEnum.MORNING, HourRangeEnum.AFTERNOON, HourRangeEnum.EVE, HourRangeEnum.NIGHT]
 		self._rangeName = ['early', 'dawn', 'morning', 'afternoon', 'eve', 'night']
 		self._genericDao = GenericDao()
