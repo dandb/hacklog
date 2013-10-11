@@ -12,19 +12,16 @@ from twisted.internet import reactor, defer
 from optparse import OptionParser
 from ConfigParser import ConfigParser
 from parse import Parser
-from entities import SyslogMsg
+from entities import SyslogMsg, MailConf
 from Queue import Queue
 from entities import create_tables, create_db_engine
 
 queue = Queue()
-parser = Parser()
-emailTest = True
 
 class SyslogServer():
     """
     Syslog server based on twisted library
     """
-
     def __init__(self):
       self.dbFile = 'hacklog.db'
       self.port = 10514
@@ -33,7 +30,11 @@ class SyslogServer():
       self.loglevel = logging.DEBUG
       self.running = True
       self.usage = "usage: %prog -c config_file"
-
+      self.testEnabled = False
+      self.emailTest = False
+      self.successPattern = None
+      self.failurePattern = None
+     
     def parceConfig(self, config_file):
        config = ConfigParser()
        config.read(config_file)
@@ -45,8 +46,13 @@ class SyslogServer():
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
        if config.has_option('MailServer', 'gmail_test'):
-	 global emailTest
-	 emailTest = config.get('MailServer', 'gmail_test')
+         self.emailTest = config.getboolean('MailServer', 'gmail_test')
+       if config.has_option('Parse', 'test_enabled'):
+         self.testEnabled = config.getboolean('Parse', 'test_enabled')
+       if config.has_option('Parse', 'success_pattern'):
+         self.successPattern = config.get('Parse', 'success_pattern')
+       if config.has_option('Parse', 'failure_pattern'):
+         self.failurePattern = config.get('Parse', 'failure_pattern')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
@@ -67,16 +73,21 @@ class SyslogServer():
       self.stop()
  
     def messageParcer(self):
-
        logging.debug("messageParcer in thread " + str(thread.get_ident()))
+       parser = None
+       # get parsing patterns from config file when in testing mode
+       if self.testEnabled:
+         parser = Parser(self.successPattern, self.failurePattern, self.testEnabled)
+       else:
+         parser = Parser()
 
        while self.running:
-          msg = queue.get()
-	  eventLog = parser.parseLogLine(msg)
-	  if eventLog:
-	      algorithm.processEventLog(eventLog)
-              logging.debug("messages in queue " + str(queue.qsize()) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port))
-    
+            msg = queue.get()
+            eventLog = parser.parseLogLine(msg)
+            if eventLog:
+                algorithm.processEventLog(eventLog)
+                logging.debug("messages in queue " + str(queue.qsize()) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port))
+ 
     def cleanupThread(self):
       threadPool = reactor.getThreadPool()
       threadPool.stop()
@@ -91,6 +102,7 @@ class SyslogServer():
       self.readCmdArgs()
       self.parceConfig(self.config_file)
       self.setLogging()
+      algorithm.setServices(MailConf(self.emailTest))
       create_db_engine(self)
       create_tables()
       self.run() 

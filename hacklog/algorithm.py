@@ -9,8 +9,14 @@ import logging
 Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, IP=15)
 Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=2, SCAREDATEEXPIRE=1)
 
-updateService = services.UpdateService()
-emailService = services.EmailService()
+updateService = None
+emailService = None
+
+def setServices(conf=None):
+  global  updateService
+  global  emailService
+  updateService = services.UpdateService(conf)
+  emailService = services.EmailService(conf)
 
 def testProcess():
 	eventLog = EventLog(date.today(), 'nrhine', '127.0.0.1', True, 'ae1-app80-prd')

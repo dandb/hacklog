@@ -131,3 +131,7 @@ class SyslogMsg():
      self.port = port
      self.date = datetime.now()
 
+class MailConf():
+ 
+   def __init__(self, emailTest=False):
+     self.emailTest = emailTest
