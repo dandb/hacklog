@@ -1,0 +1,8 @@
+/var/log/hacklog/hacklog {
+	weekly
+	missingok
+	rotate 7
+	compress
+	notifempty
+}
+
