@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "hacklog",
-    version = "0.0.1",
+    version = "0.0.3",
     author = "DandB Hackweek Team - Hackling Ouliers",
     author_email = "hacklog@dandb.com",
     description = ("Syslog server for detection of compromised user accounts by"
@@ -18,7 +18,7 @@ setup(
     license = "GPLv3",
     keywords = "hacking security logs syslog outliers statistical analysis",
     url = "https://github.com/dandb/hacklog",
-    packages=['hacklog', 'tests'],
+    packages=['hacklog'],
     long_description=read('README.md') + '\n\n' + read('CHANGES'),
     classifiers=[
         "Development Status :: 3 - Alpha",

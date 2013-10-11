@@ -12,7 +12,7 @@
 %{!?pythonpath: %global pythonpath %(%{__python} -c "import os, sys; print(os.pathsep.join(sys.path))")}
 
 Name: hacklog
-Version: 0.0.1
+Version: 0.0.3
 Release: 1%{?dist}
 Summary: Hacklog Server
 
@@ -84,6 +84,7 @@ cd $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mkdir -p $RPM_BUILD_ROOT%{_initrddir}
 install -p -m 0640 conf/server.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/server.conf
 install -p -m 0755 bin/%{name} $RPM_BUILD_ROOT%{_bindir}/%{name}
 install -p -m 0755 scripts/%{name}.init.d $RPM_BUILD_ROOT%{_initrddir}/%{name}
@@ -91,7 +92,7 @@ install -p -m 0755 scripts/%{name}.init.d $RPM_BUILD_ROOT%{_initrddir}/%{name}
 %if ((0%{?rhel} >= 6 || 0%{?fedora} > 12) && 0%{?include_tests})
 %check
 cd $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}
-PYTHONPATH=%{pythonpath}:$RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version} %{__python} setup.py test --runtests-opts=-u
+PYTHONPATH=%{pythonpath}:$RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version} %{__python} setup.py test
 %endif
 
 %clean
@@ -102,7 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/README.md
 %doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/CHANGES
 %doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/LICENSE
-%{python_sitelib}/%{name}/*
+%{python_sitelib}/%{name}
 %{python_sitelib}/%{name}-%{version}-py?.?.egg-info
 
 %files -n hacklog
@@ -114,6 +115,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_unitdir}/%{name}.service
 %endif
 %config(noreplace) %{_sysconfdir}/hacklog/server.conf
+%doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/README.md
+%doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/CHANGES
+%doc $RPM_BUILD_DIR/%{name}-%{version}/%{name}-%{version}/LICENSE
+%{python_sitelib}/%{name}
+%{python_sitelib}/%{name}-%{version}-py?.?.egg-info
 
 # less than RHEL 8 / Fedora 16
 # not sure if RHEL 7 will use systemd yet
