@@ -44,7 +44,7 @@ class SyslogServer():
          self.port = config.getint('SyslogServer', 'port')       
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
-       if config.has_option('MailServer', 'gmail_test')
+       if config.has_option('MailServer', 'gmail_test'):
 	 global emailTest
 	 emailTest = config.get('MailServer', 'gmail_test')
 
@@ -75,11 +75,7 @@ class SyslogServer():
 	  eventLog = parser.parseLogLine(msg)
 	  if eventLog:
 	      algorithm.processEventLog(eventLog)
-<<<<<<< HEAD
               logging.debug("messages in queue " + str(queue.qsize()) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port))
-=======
-              print "messages in queue " + str(queue.qsize())  + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
->>>>>>> SMTP-SERVER: SMTP Server implementation and algorithm fixes
     
     def cleanupThread(self):
       threadPool = reactor.getThreadPool()
