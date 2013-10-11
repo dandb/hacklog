@@ -2,36 +2,36 @@ from accessdata import *
 from datetime import datetime
 import smtplib
 from entities import *
-from server import SyslogServer
+import server
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8-12), AFTERNOON=range(12-16), EVE=range(16-20), NIGHT=range(20-24))
+HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8,12), AFTERNOON=range(12,16), EVE=range(16,20), NIGHT=range(20,24))
 
 class EmailService:
 
-	def sendMail(self, toAddress, msg):
-		if SysLogServer.emailTest:
+	def __init__(self):
+		if server.emailTest:
 			gmailUser = 'sshAlertsTest@gmail.com'
 			gmailPassword = 'Dandb@123'
 			self.mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-			fromAddress = gmailUser
+			self.fromAddress = gmailUser
+			self.mailServer.ehlo()
+			self.mailServer.starttls()
+			self.mailServer.ehlo()
+			self.mailServer.login(gmailUser, gmailPassword)
 		else:
 			self.mailServer = smtplib.SMTP('localhost')
-			fromAddress = 'sshAlerts@dandb.com'
-                msg['From'] = fromAddress
-		self.mailServer.ehlo()
-		self.mailServer.starttls()
-		self.mailServer.ehlo()
-		if gmailTest:
-			self.mailServer.login(gmailUser, gmailPassword)
-		self.mailServer.sendmail(fromAddress, toAddress, msg.as_string())
-		self.mailServer.close()
+			self.fromAddress = 'sshAlerts@dandb.com'
+
+	def sendMail(self, toAddress, msg):
+                msg['From'] = self.fromAddress
+		self.mailServer.sendmail(self.fromAddress, toAddress, msg.as_string())
 
         def sendEmailAlert(self, user, eventLog):
                 fromAddress = 'sshAlerts@dandb.com'
-                toAddress = 'nrhine@dandb.com'
+                toAddress = 'hackloggroup@googlegroups.com'
 
                 # Create message container - the correct MIME type is multipart/alternative.
                 msg = MIMEMultipart()
@@ -76,6 +76,7 @@ class UpdateService:
 		for hourRange in self._hourRanges:
 			if hour in hourRange:
 				rangeName = self._rangeName[self._hourRanges.index(hourRange)]
+				break
 		if hourProfile == None:
 			hourProfile = Hours(eventLog.date, eventLog.username, {}, 0)
 			self._genericDao.saveEntity(hourProfile)

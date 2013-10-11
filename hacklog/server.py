@@ -18,6 +18,7 @@ from entities import create_tables, create_db_engine
 
 queue = Queue()
 parser = Parser()
+emailTest = True
 
 class SyslogServer():
     """
@@ -32,7 +33,6 @@ class SyslogServer():
       self.loglevel = logging.DEBUG
       self.running = True
       self.usage = "usage: %prog -c config_file"
-      self.emailTest = True
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -45,7 +45,8 @@ class SyslogServer():
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
        if config.has_option('MailServer', 'gmail_test')
-	 self.emailTest = config.get('MailServer', 'gmail_test')
+	 global emailTest
+	 emailTest = config.get('MailServer', 'gmail_test')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
@@ -58,6 +59,7 @@ class SyslogServer():
     def setLogging(self):
       logging.basicConfig(level=self.loglevel)      
 
+    
     def interrupt(self, signum, stackframe):
       logging.debug("Got signal: %s" % signum)
       self.running = False
@@ -73,7 +75,11 @@ class SyslogServer():
 	  eventLog = parser.parseLogLine(msg)
 	  if eventLog:
 	      algorithm.processEventLog(eventLog)
+<<<<<<< HEAD
               logging.debug("messages in queue " + str(queue.qsize()) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port))
+=======
+              print "messages in queue " + str(queue.qsize())  + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
+>>>>>>> SMTP-SERVER: SMTP Server implementation and algorithm fixes
     
     def cleanupThread(self):
       threadPool = reactor.getThreadPool()

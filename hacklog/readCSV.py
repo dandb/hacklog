@@ -13,7 +13,7 @@ class ReadCSVFiles(object):
     #function that ships messages over the network
     def logMessages(self, logData):
         sysLogMessage = ''
-        if(logData['Login_Status'] == 'True'):
+        if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
             sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123))
         else:
             sysLogMessage = "ssshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'])

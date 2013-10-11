@@ -38,8 +38,17 @@ def calculateNewScore(eventLog):
 	ipScore = calculateIpScore(eventLog)
 	dayScore = calculateDaysScore(eventLog)
 	hourScore = calculateHoursScore(eventLog)
+
+	print serverScore
+	print ipScore
+	print dayScore
+	print hourScore
+	
+	print successScore
+	print ipLocationScore
 	
 	totalScore = successScore + ipLocationScore + serverScore + ipScore + dayScore + hourScore
+	print totalScore
 	return totalScore
 
 def auditEventLog(eventLog):
