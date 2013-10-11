@@ -19,6 +19,7 @@ from entities import create_tables, create_db_engine
 queue = Queue()
 parser = Parser()
 emailTest = True
+testEnabled = True
 
 class SyslogServer():
     """
@@ -47,6 +48,9 @@ class SyslogServer():
        if config.has_option('MailServer', 'gmail_test'):
 	 global emailTest
 	 emailTest = config.get('MailServer', 'gmail_test')
+        if config.has_option('Parse', 'test_enabled')
+            global testEnabled
+            testEnabled = config.get('Parse', 'test_enabled')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
