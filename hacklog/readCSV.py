@@ -14,10 +14,9 @@ class ReadCSVFiles(object):
     def logMessages(self, logData):
         sysLogMessage = ''
         if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
-            sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123))
+            sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2 DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123),logData['Date Time'],logData['Server_Name'])
         else:
-            sysLogMessage = "ssshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'])
-
+            sysLogMessage = "sshd[%d]: pam_unix(sshd:auth): authentication failure; login= uid=0 euid=0 tty=ssh ruser= rhost=%s user=%s DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['IP'],logData['User'],logData['Date Time'],logData['Server_Name'])
         #log the message in syslogs
         logger.info(sysLogMessage)
 
