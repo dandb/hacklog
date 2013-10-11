@@ -40,7 +40,7 @@ def calculateNewScore(eventLog):
 	hourScore = calculateHoursScore(eventLog)
 	
 	totalScore = successScore + ipLocationScore + serverScore + ipScore + dayScore + hourScore
-	print totalScore
+	logging.debug("Total Score: %s" % totalScore)
 	return totalScore
 
 def auditEventLog(eventLog):
