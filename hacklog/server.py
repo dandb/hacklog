@@ -18,6 +18,7 @@ from entities import create_tables, create_db_engine
 
 queue = Queue()
 parser = Parser()
+emailTest = True
 
 class SyslogServer():
     """
@@ -43,6 +44,9 @@ class SyslogServer():
          self.port = config.getint('SyslogServer', 'port')       
        if config.has_option('SyslogServer', 'db_file'):
          self.dfFile = config.get('SyslogServer', 'df_file')
+       if config.has_option('MailServer', 'gmail_test'):
+	 global emailTest
+	 emailTest = config.get('MailServer', 'gmail_test')
 
     def readCmdArgs(self):
       cmdParser = OptionParser(usage=self.usage)
@@ -55,6 +59,7 @@ class SyslogServer():
     def setLogging(self):
       logging.basicConfig(level=self.loglevel)      
 
+    
     def interrupt(self, signum, stackframe):
       logging.debug("Got signal: %s" % signum)
       self.running = False

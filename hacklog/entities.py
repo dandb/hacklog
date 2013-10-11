@@ -2,6 +2,7 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import date, datetime
+from session import Session
 
 db = None
 Base = declarative_base()
@@ -15,6 +16,7 @@ def create_db_engine(server):
 
 def create_tables():
         Base.metadata.create_all(db)
+	Session.configure(bind=db)
 
 class EventLog(Base):
 	__tablename__ = 'eventLog'
