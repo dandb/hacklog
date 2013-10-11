@@ -3,12 +3,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import date, datetime
 
-db = create_engine('sqlite:///hacklog.db', echo=True)
+db = None
 Base = declarative_base()
 
 def enum(**enums):
 	return type('Enum', (), enums)
 
+def create_db_engine(server):
+        global db 
+        db = create_engine('sqlite:///' + server.dbFile)
 
 def create_tables():
         Base.metadata.create_all(db)
