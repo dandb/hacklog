@@ -1,20 +1,17 @@
 from entities import EventLog
-from entities import SyslogMsg
+from entities import enum
 from datetime import datetime
-import server
 import re
+
+Months = enum(Jan=01, Feb=02, Mar=03, Apr=04, May=05, Jun=06, Jul=07, Oct=10, Nov=11, Dec=12)
 
 class Parser():
   def __init__(self, successPattern=None, failurePattern=None):
     self.successPattern = successPattern or 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port'
     self.failurePattern = failurePattern or 'pam_unix\(sshd:auth\):\s+authentication\s+failure\;\s+login=\s+uid=0\s+euid=0\s+tty=ssh+\s+ruser=+\s+rhost=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+user=([0-9a-zA-Z_-]+)'
-    if server.testEnabled:
-        self.successPatten = 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port\s+(\d{1,4})+\s+ssh2+\s+DATE_TIME\s+(\d{1,4}-\d{1,2}-\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+HOST\s+([\w\+%\-& ]+)'
-        self.failurePattern = 'pam_unix\(sshd:auth\):\s+authentication\s+failure\;\s+login=\s+uid=0\s+euid=0\s+tty=ssh+\s+ruser=+\s+rhost=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+user=([0-9a-zA-Z_-]+)\s+DATE_TIME\s+(\d{1,4}-\d{1,2}-\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+HOST\s+([\w\+%\-& ]+)'
+
   def parseLogLine(self, message):
-
     returnEvent = False
-
     if message:
         line = message.data
         host = message.host
@@ -26,7 +23,9 @@ class Parser():
                 logline.pop(0)
                 log_entry = ' '.join(logline)
                 # successful login
-                m = re.match(self.successPatten, log_entry)
+                #self.successPattern = 'Accepted\s+publickey\s+for\s+([0-9a-zA-Z_-]+)\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+port\s+(\d{1,4})+\s+ssh2+\s+DATE_TIME\s+(\d{1,4}-\d{1,2}-\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+HOST\s+([\w\+%\-& ]+)'
+                m = re.match(self.successPattern, log_entry)
+                print m
                 if m:
                     user_name = m.groups(0)[0]
                     user_ip = m.groups(0)[1]
@@ -45,9 +44,27 @@ class Parser():
                     host = m.groups(0)[3]
                     returnEvent = EventLog(date_time, user_name, user_ip, False, host)
         elif "Source Network Address" in line and "Account Name:" in line:
+
+            logData = logline
+
+            #form the date time and the host name from the data logs
+            logData = logData.split(' ')
+            moreData = logData.pop(0)
+            moreData = moreData.split(">")
+            moreData = moreData[1].lstrip()
+            day = logData.pop(0)
+            year = "2013"
+            timeFormat = logData.pop(0)
+            host = logData.pop(0)
+            date_time = year + "-" + "10" + "-" + day + " " + timeFormat
+            date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
+
+            #get source address by splitting at the string and extracting the data
             userIP = logline.split("Source Network Address:")
             userIP = userIP[1].lstrip()
             user_ip = userIP[0:userIP.index(" ")].rstrip()
+
+            #get account name by splitting at the string and extracting the data
             accountName = logline.split("Account Name:")
             if logline.count("Account Name:") > 1:
                 accountName = accountName[2]
@@ -55,7 +72,7 @@ class Parser():
                 accountName = accountName[1]
             userName = accountName.lstrip()
             user_name = userName[0:userName.index(" ")].rstrip()
-            returnEvent = EventLog(datetime.now(), user_name, user_ip, True, host)
+            returnEvent = EventLog(date_time, user_name, user_ip, True, host)
         else:
             returnEvent = False
     else:
