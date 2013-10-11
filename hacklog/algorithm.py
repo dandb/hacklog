@@ -6,7 +6,7 @@ import math
 from datetime import date
 
 Weight = enum(HOURS=10, DAYS=10, SERVER=15, SUCCESS=35, VPN=0, INT=10, EXT=15, IP=15)
-Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=3, SCAREDATEEXPIRE=1)
+Threshold = enum(CRITICAL=50, SCARY=30, SCARECOUNT=2, SCAREDATEEXPIRE=1)
 
 updateService = services.UpdateService()
 emailService = services.EmailService()
@@ -38,14 +38,6 @@ def calculateNewScore(eventLog):
 	ipScore = calculateIpScore(eventLog)
 	dayScore = calculateDaysScore(eventLog)
 	hourScore = calculateHoursScore(eventLog)
-
-	print serverScore
-	print ipScore
-	print dayScore
-	print hourScore
-	
-	print successScore
-	print ipLocationScore
 	
 	totalScore = successScore + ipLocationScore + serverScore + ipScore + dayScore + hourScore
 	print totalScore
