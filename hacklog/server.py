@@ -4,6 +4,7 @@ import thread
 import random
 import algorithm
 import signal
+import logging
 
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor, defer
@@ -13,7 +14,7 @@ from ConfigParser import ConfigParser
 from parse import Parser
 from entities import SyslogMsg
 from Queue import Queue
-from entities import create_tables
+from entities import create_tables, create_db_engine
 
 queue = Queue()
 parser = Parser()
@@ -24,11 +25,13 @@ class SyslogServer():
     """
 
     def __init__(self):
+      self.dbFile = 'hacklog.db'
       self.port = 10514
       self.bind_address = '127.0.0.1'
-      self.config_file = './server.conf'
-      self.debug = 10
+      self.config_file = '../conf/server.conf'
+      self.loglevel = logging.DEBUG
       self.running = True
+      self.usage = "usage: %prog -c config_file"
 
     def parceConfig(self, config_file):
        config = ConfigParser()
@@ -38,27 +41,36 @@ class SyslogServer():
          self.bind_address = config.get('SyslogServer', 'bind_address')
        if config.has_option('SyslogServer', 'bind_port'):
          self.port = config.getint('SyslogServer', 'port')       
-    
+       if config.has_option('SyslogServer', 'db_file'):
+         self.dfFile = config.get('SyslogServer', 'df_file')
+
+    def readCmdArgs(self):
+      cmdParser = OptionParser(usage=self.usage)
+      cmdParser.add_option("-c", "--config", dest="config_file",
+                      help="configuration file", metavar="FILE")
+      (options, args) = cmdParser.parse_args()
+      if options.config_file:
+        self.config_file = options.config_file
+
+    def setLogging(self):
+      logging.basicConfig(level=self.loglevel)      
 
     def interrupt(self, signum, stackframe):
-      print "Got signal: %s" % signum
+      logging.debug("Got signal: %s" % signum)
       self.running = False
       queue.put(SyslogMsg())
       self.stop()
  
     def messageParcer(self):
 
-       if self.debug <= 10:
-          print "messageParcer in thread " + str(thread.get_ident())
+       logging.debug("messageParcer in thread " + str(thread.get_ident()))
 
        while self.running:
           msg = queue.get()
-          delay = random.random()
 	  eventLog = parser.parseLogLine(msg)
 	  if eventLog:
 	      algorithm.processEventLog(eventLog)
-              time.sleep(delay)
-              print "messages in queue " + str(queue.qsize()) + ",sleeped for " + str(delay) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port)
+              logging.debug("messages in queue " + str(queue.qsize()) + ", received %r from %s:%d" % (msg.data, msg.host, msg.port))
     
     def cleanupThread(self):
       threadPool = reactor.getThreadPool()
@@ -69,6 +81,14 @@ class SyslogServer():
       reactor.callInThread(self.messageParcer)
       reactor.listenUDP(self.port, SyslogReader())
       reactor.run()
+
+    def start(self):
+      self.readCmdArgs()
+      self.parceConfig(self.config_file)
+      self.setLogging()
+      create_db_engine(self)
+      create_tables()
+      self.run() 
 
     def stop(self):
       reactor.stop()
@@ -81,19 +101,9 @@ class SyslogReader(DatagramProtocol):
         queue.put(syslogMsg)
 
 def main():
-    usage = "usage: %prog -c config_file"
-    parser = OptionParser(usage=usage)
-    parser.add_option("-c", "--config", dest="config_file",
-                      help="configuration file", metavar="FILE")
-    (options, args) = parser.parse_args()
-    if not options.config_file:
-        parser.error('you must specify a configuration file')
 
     server = SyslogServer()
-    server.parceConfig(options.config_file)
-    create_tables()
-
-    server.run()
+    server.start()
 
 if __name__ == '__main__':
     main()
