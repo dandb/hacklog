@@ -2,6 +2,7 @@
 from time import sleep
 from logging.handlers import SysLogHandler
 import syslog
+from datetime import datetime
 import sys
 import csv
 import logging
@@ -13,6 +14,7 @@ class ReadCSVFiles(object):
     #function that ships messages over the network
     def logMessages(self, logData):
         sysLogMessage = ''
+        logData['Date Time'] = datetime.strptime(logData['Date Time'], '%Y-%m-%d %H:%M:%S')
         if(logData['Login_Status'] == 'TRUE' or logData['Login_Status'] == 'True'):
             sysLogMessage = "sshd[%d]: Accepted publickey for %s from %s port %d ssh2 DATE_TIME %s HOST %s" %(random.randrange(1000, 9999, 345),logData['User'],logData['IP'],random.randrange(1021, 9999, 123),logData['Date Time'],logData['Server_Name'])
         else:
