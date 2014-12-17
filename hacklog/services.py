@@ -12,6 +12,8 @@ HourRangeEnum = enum(EARLY=range(4), DAWN=range(4,8), MORNING=range(8,12), AFTER
 class EmailService:
 
 	def __init__(self, conf=None):
+                # FIXME:  this needs to be rewritten, so config comes from config file
+		#         and no actions are done in the constructor itself
 		if conf.emailTest:
 			gmailUser = 'sshAlertsTest@gmail.com'
 			gmailPassword = 'Dandb@123'
@@ -22,11 +24,12 @@ class EmailService:
 			self.mailServer.ehlo()
 			self.mailServer.login(gmailUser, gmailPassword)
 		else:
-			self.mailServer = smtplib.SMTP('localhost')
+			self.mailServer = smtplib.SMTP()
 			self.fromAddress = 'sshAlerts@dandb.com'
 
 	def sendMail(self, toAddress, msg):
                 msg['From'] = self.fromAddress
+                self.mailServer.connect()
 		self.mailServer.sendmail(self.fromAddress, toAddress, msg.as_string())
 
         def sendEmailAlert(self, user, eventLog):

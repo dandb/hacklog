@@ -1,16 +1,16 @@
 import unittest
+from compat import _Compat
 from mockito import mock, when, verify, any
 import sys
-sys.path.append('../hacklog')
 from entities import *
 from services import *
 import re
 from datetime import datetime
 
-emailService = EmailService()
+emailService = EmailService(MailConf(emailTest=False))
 updateService = UpdateService()
 
-class ServiceTests(unittest.TestCase):
+class ServiceTests(unittest.TestCase, _Compat):
 
     def setUp(self):
 	self._eventLog = EventLog(datetime.now(), 'nrhine', '1.2.3.4', True, 'prod')
@@ -28,6 +28,8 @@ class ServiceTests(unittest.TestCase):
 	emailService._smtpSend = mock()
 
     def test_email_send(self):
+	when(emailService.mailServer).connect().thenReturn(True)
+	when(emailService.mailServer).sendmail().thenReturn(True)
 	emailService.sendEmailAlert(self._user, self._eventLog)
 	when(emailService._smtpSend).sendmail(any())
 	verify(emailService._smtpSend, times=1).sendmail(any())
