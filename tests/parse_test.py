@@ -1,6 +1,6 @@
 import unittest
+from compat import _Compat
 import sys
-sys.path.append('../hacklog')
 from parse import Parser
 from entities import *
 from server import SyslogServer
@@ -10,7 +10,7 @@ parse = None
 server = SyslogServer()
 default = None
 
-class ParserTests(unittest.TestCase):
+class ParserTests(unittest.TestCase, _Compat):
 
     global parse
     server = SyslogServer()

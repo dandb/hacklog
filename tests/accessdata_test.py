@@ -1,7 +1,7 @@
 import unittest
+from compat import _Compat
 from datetime import datetime
 import sys
-sys.path.append('../hacklog')
 from accessdata import *
 from entities import *
 import re
@@ -15,14 +15,20 @@ hoursDao = HoursDao()
 serverDao = ServerDao()
 ipAddressDao = IpAddressDao()
 
-class AccessDataTests(unittest.TestCase):
+class AccessDataTests(unittest.TestCase, _Compat):
 
     def setUp(self):
-	create_tables()
+
 	self._user = User('nrhine', datetime.today(), 10)
 
+	self.dbFile = ':memory:'
+
+        create_db_engine(self)
+	create_tables()
+
     def tearDown(self):
-	os.remove('hacklog.db')
+        if self.dbFile != ':memory:':
+	    os.remove(self.dbFile)
 
     def test_starting_out(self):
         self.assertEqual(1, 1)
