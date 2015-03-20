@@ -5,14 +5,14 @@
 %define __python %{_bindir}/python%{?pybasever}
 %endif
 
-%global include_tests 1
+%global include_tests 0
 
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %{!?pythonpath: %global pythonpath %(%{__python} -c "import os, sys; print(os.pathsep.join(sys.path))")}
 
 Name: hacklog
-Version: 0.0.4
+Version: 0.0.5
 Release: 1%{?dist}
 Summary: Hacklog Server
 
